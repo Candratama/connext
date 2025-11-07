@@ -23,6 +23,7 @@ pnpm run dev
 ## Setup Script
 
 Run `pnpm run setup` to configure:
+
 - Google OAuth (optional)
 - Resend API key
 - Convex deployment
