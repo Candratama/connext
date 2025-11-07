@@ -51,3 +51,41 @@ export const getUserByEmail = query(
       .unique();
   }
 );
+
+/**
+ * Verify email address with code
+ */
+export const verifyEmail = mutation(
+  async (ctx, { email, code }: { email: string; code: string }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    if (user.isEmailVerified) {
+      return { message: "Email already verified" };
+    }
+
+    if (user.emailVerificationCode !== code) {
+      throw new Error("Invalid verification code");
+    }
+
+    if (user.emailVerificationExpires && user.emailVerificationExpires < Date.now()) {
+      throw new Error("Verification code has expired");
+    }
+
+    // Update user as verified
+    await ctx.db.patch(user._id, {
+      isEmailVerified: true,
+      emailVerificationCode: undefined,
+      emailVerificationExpires: undefined,
+      lastSeenAt: Date.now(),
+    });
+
+    return { message: "Email verified successfully" };
+  }
+);
