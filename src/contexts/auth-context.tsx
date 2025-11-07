@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
 import { useMutation, useQuery } from "convex/react";
-import { api } from "../../convex/generated/api";
+import { api } from "@/convex/generated/api.js";
 
 interface User {
   _id: string;
