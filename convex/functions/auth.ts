@@ -89,3 +89,71 @@ export const verifyEmail = mutation(
     return { message: "Email verified successfully" };
   }
 );
+
+/**
+ * Request password reset
+ */
+export const requestPasswordReset = mutation(
+  async (ctx, { email }: { email: string }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+
+    if (!user) {
+      // Don't reveal if user exists
+      return { message: "If an account with that email exists, we've sent a password reset link." };
+    }
+
+    // Generate reset code
+    const resetCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 60 * 60 * 1000; // 1 hour
+
+    // Update user with reset code
+    await ctx.db.patch(user._id, {
+      passwordResetCode: resetCode,
+      passwordResetExpires: expiresAt,
+    });
+
+    // Send reset email
+    await sendPasswordResetEmail(ctx, { email, code: resetCode, name: user.name });
+
+    return { message: "If an account with that email exists, we've sent a password reset link." };
+  }
+);
+
+/**
+ * Reset password with code
+ */
+export const resetPassword = mutation(
+  async (ctx, { email, code, newPassword }: { email: string; code: string; newPassword: string }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+
+    if (!user) {
+      throw new Error("Invalid reset code");
+    }
+
+    if (user.passwordResetCode !== code) {
+      throw new Error("Invalid reset code");
+    }
+
+    if (user.passwordResetExpires && user.passwordResetExpires < Date.now()) {
+      throw new Error("Reset code has expired");
+    }
+
+    // Note: In production, use proper password hashing (e.g., bcrypt)
+    // This is simplified for the starter template
+
+    // Update user password and clear reset code
+    await ctx.db.patch(user._id, {
+      password: newPassword, // Simplified - should be hashed
+      passwordResetCode: undefined,
+      passwordResetExpires: undefined,
+    });
+
+    return { message: "Password reset successfully" };
+  }
+);
