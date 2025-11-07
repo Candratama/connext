@@ -10,7 +10,14 @@
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "lint": "next lint",
-    "lint:fix": "next lint --fix"
+    "lint:fix": "next lint --fix",
+    "setup": "tsx scripts/setup.ts",
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy",
+    "convex:seed:minimal": "convex run seed:minimal",
+    "convex:seed:demo": "convex run seed:demo",
+    "seed": "pnpm convex:seed:minimal",
+    "seed:demo": "pnpm convex:seed:demo"
   },
   "dependencies": {
     "@faker-js/faker": "^9.3.0",
@@ -74,6 +81,7 @@
     "prettier": "^3.4.2",
     "prettier-plugin-tailwindcss": "^0.6.11",
     "tailwindcss": "^4.0.7",
+    "tsx": "^4.20.6",
     "typescript": "^5.7.3"
   }
 }
