@@ -1,8 +1,6 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
-import { useMutation, useQuery } from "convex/react";
-import { api } from "@/convex/generated/api.js";
 
 interface User {
   _id: string;
@@ -27,14 +25,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [isLoading, setIsLoading] = useState(true);
 
   // Get current user (implement in Batch 4)
-  const getCurrentUser = useQuery(api.users.getCurrentUser);
-
+  // For now, we'll check localStorage or skip this check
   useEffect(() => {
-    if (getCurrentUser !== undefined) {
-      setUser(getCurrentUser);
-      setIsLoading(false);
-    }
-  }, [getCurrentUser]);
+    // TODO: Implement getCurrentUser query in Batch 4
+    // const getCurrentUser = useQuery(api.users.getCurrentUser);
+    // if (getCurrentUser !== undefined) {
+    //   setUser(getCurrentUser);
+    //   setIsLoading(false);
+    // }
+    setIsLoading(false);
+  }, []);
 
   const login = async (email: string, password: string) => {
     // Implement in Batch 4
