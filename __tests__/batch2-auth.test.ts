@@ -12,6 +12,7 @@ describe("Batch 2: Authentication Backend", () => {
     expect(authContent).toContain("export const verifyEmail");
     expect(authContent).toContain("export const requestPasswordReset");
     expect(authContent).toContain("export const resetPassword");
+    expect(authContent).toContain("export const resendVerification");
   });
 
   test("email.ts functions exist", () => {
@@ -29,5 +30,17 @@ describe("Batch 2: Authentication Backend", () => {
   test("FROM_EMAIL in environment", () => {
     const envExample = fs.readFileSync(".env.example", "utf8");
     expect(envExample).toContain("FROM_EMAIL=noreply@yourapp.com");
+  });
+
+  test("resend dependency in package.json", () => {
+    const pkg = JSON.parse(fs.readFileSync("package.json", "utf8"));
+    expect(pkg.dependencies).toHaveProperty("resend");
+  });
+
+  test("auth.ts imports email functions", () => {
+    const authContent = fs.readFileSync("convex/functions/auth.ts", "utf8");
+    expect(authContent).toContain('from "./email"');
+    expect(authContent).toContain("sendVerificationEmail");
+    expect(authContent).toContain("sendPasswordResetEmail");
   });
 });
