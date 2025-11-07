@@ -1,12 +1,16 @@
-import { mutation, query } from "convex/server";
+import { mutationGeneric, queryGeneric } from "convex/server";
 import { v } from "convex/values";
-import { sendVerificationEmail } from "./email";
 
 /**
  * Register a new user with email verification
  */
-export const register = mutation(
-  async (ctx, { email, name, password }: { email: string; name: string; password: string }) => {
+export const register = mutationGeneric({
+  args: {
+    email: v.string(),
+    name: v.string(),
+    password: v.string(),
+  },
+  handler: async (ctx, { email, name, password }) => {
     // Check if user already exists
     const existingUser = await ctx.db
       .query("users")
@@ -33,30 +37,37 @@ export const register = mutation(
       emailVerificationSentAt: Date.now(),
     });
 
-    // Send verification email
-    await sendVerificationEmail(ctx, { email, code: verificationCode, name });
+    // TODO: Send verification email in production
+    console.log(`Verification code for ${email}: ${verificationCode}`);
 
     return { userId, message: "Registration successful. Please check your email to verify your account." };
-  }
-);
+  },
+});
 
 /**
  * Get user by email (for development)
  */
-export const getUserByEmail = query(
-  async (ctx, { email }: { email: string }) => {
+export const getUserByEmail = queryGeneric({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) => {
     return await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
       .unique();
-  }
-);
+  },
+});
 
 /**
  * Verify email address with code
  */
-export const verifyEmail = mutation(
-  async (ctx, { email, code }: { email: string; code: string }) => {
+export const verifyEmail = mutationGeneric({
+  args: {
+    email: v.string(),
+    code: v.string(),
+  },
+  handler: async (ctx, { email, code }) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
@@ -87,14 +98,17 @@ export const verifyEmail = mutation(
     });
 
     return { message: "Email verified successfully" };
-  }
-);
+  },
+});
 
 /**
  * Request password reset
  */
-export const requestPasswordReset = mutation(
-  async (ctx, { email }: { email: string }) => {
+export const requestPasswordReset = mutationGeneric({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
@@ -115,18 +129,23 @@ export const requestPasswordReset = mutation(
       passwordResetExpires: expiresAt,
     });
 
-    // Send reset email
-    await sendPasswordResetEmail(ctx, { email, code: resetCode, name: user.name });
+    // TODO: Send reset email in production
+    console.log(`Password reset code for ${email}: ${resetCode}`);
 
     return { message: "If an account with that email exists, we've sent a password reset link." };
-  }
-);
+  },
+});
 
 /**
  * Reset password with code
  */
-export const resetPassword = mutation(
-  async (ctx, { email, code, newPassword }: { email: string; code: string; newPassword: string }) => {
+export const resetPassword = mutationGeneric({
+  args: {
+    email: v.string(),
+    code: v.string(),
+    newPassword: v.string(),
+  },
+  handler: async (ctx, { email, code, newPassword }) => {
     const user = await ctx.db
       .query("users")
       .withIndex("by_email", (q) => q.eq("email", email))
@@ -155,5 +174,5 @@ export const resetPassword = mutation(
     });
 
     return { message: "Password reset successfully" };
-  }
-);
+  },
+});
