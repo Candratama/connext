@@ -4,10 +4,10 @@ import { mutation, query } from "convex/server";
  * Authentication-related functions
  * Will be implemented in Batch 2
  */
-export const example = query((ctx) => {
-  return "Auth functions placeholder";
+export const getAuthStatus = query((ctx) => {
+  return "Auth status placeholder - implement in Batch 2";
 });
 
-export const exampleMutation = mutation((ctx) => {
-  return "Auth mutation placeholder";
+export const sendVerificationEmail = mutation((ctx) => {
+  return "Send verification email - implement in Batch 2";
 });

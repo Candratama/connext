@@ -7,5 +7,9 @@ if (!process.env.NEXT_PUBLIC_CONVEX_URL) {
 /**
  * Convex HTTP client for the browser
  * Used for direct API calls if needed
+ *
+ * @example
+ * import { convex } from "@/lib/convex/client"
+ * const result = await convex.query(myQuery)
  */
 export const convex = new ConvexHttpClient(process.env.NEXT_PUBLIC_CONVEX_URL)
