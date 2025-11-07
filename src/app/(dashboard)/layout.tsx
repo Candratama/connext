@@ -2,7 +2,7 @@ import { cookies } from "next/headers"
 import { cn } from "@/lib/utils"
 import { SidebarProvider } from "@/components/ui/sidebar"
 import { AppSidebar } from "@/components/layout/app-sidebar"
-import { ProtectedRoute } from "../../../components/protected-route"
+import { ProtectedRoute } from "@/components/protected-route"
 
 interface Props {
   children: React.ReactNode
