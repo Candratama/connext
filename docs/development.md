@@ -44,6 +44,38 @@ pnpm dev
 - `pnpm seed` - Seed database with minimal data
 - `pnpm seed:demo` - Seed database with demo data
 
+## Authentication Flow
+
+### Register
+1. User fills registration form
+2. System creates user with `isEmailVerified: false`
+3. Sends verification email via Resend
+4. User clicks link in email
+5. User enters code to verify
+6. Account becomes active
+
+### Login
+1. User enters credentials
+2. System checks if email is verified
+3. If not verified → redirect to verification page
+4. If verified → allow login
+
+### Password Reset
+1. User clicks "Forgot Password"
+2. System sends reset email
+3. User clicks link in email
+4. User enters new password
+5. Password is updated
+
+## Test Users
+
+After running `pnpm seed`, you can use:
+
+- **Admin:** admin@example.com
+- **Test:** test@example.com
+
+Both users are pre-verified and ready to use.
+
 ## Next Steps
 
 See the implementation plan in `docs/plans/` for what's being built next.
