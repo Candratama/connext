@@ -1,30 +1,19 @@
-import Link from "next/link"
-import { Card } from "@/components/ui/card"
-import { ForgotPasswordForm } from "./components/forgot-password-form"
+import { ForgotPasswordForm } from "../../../components/auth/forgot-password-form";
 
 export default function ForgotPasswordPage() {
   return (
-    <Card className="p-6">
-      <div className="mb-2 flex flex-col space-y-2 text-left">
-        <h1 className="text-md font-semibold tracking-tight">
-          Forgot Password
-        </h1>
-        <p className="text-muted-foreground text-sm">
-          Enter your registered email and <br /> we will send you a link to
-          reset your password.
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Reset your password
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Enter your email and we'll send you a reset code
+          </p>
+        </div>
+        <ForgotPasswordForm />
       </div>
-      <ForgotPasswordForm />
-      <p className="text-muted-foreground mt-4 px-8 text-center text-sm">
-        Don&apos;t have an account?{" "}
-        <Link
-          href="/register"
-          className="hover:text-primary underline underline-offset-4"
-        >
-          Register
-        </Link>
-        .
-      </p>
-    </Card>
-  )
+    </div>
+  );
 }
