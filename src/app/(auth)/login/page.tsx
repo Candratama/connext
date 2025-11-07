@@ -1,34 +1,25 @@
-import { Card } from "@/components/ui/card"
-import { UserAuthForm } from "./components/user-auth-form"
+import { LoginForm } from "../../../components/auth/login-form";
 
 export default function LoginPage() {
   return (
-    <Card className="p-6">
-      <div className="flex flex-col space-y-2 text-left">
-        <h1 className="text-2xl font-semibold tracking-tight">Login</h1>
-        <p className="text-muted-foreground text-sm">
-          Enter your email and password below <br />
-          to log into your account
-        </p>
+    <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-md w-full space-y-8">
+        <div>
+          <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+            Sign in to your account
+          </h2>
+          <p className="mt-2 text-center text-sm text-gray-600">
+            Or{" "}
+            <a
+              href="/register"
+              className="font-medium text-blue-600 hover:text-blue-500"
+            >
+              create a new account
+            </a>
+          </p>
+        </div>
+        <LoginForm />
       </div>
-      <UserAuthForm />
-      <p className="text-muted-foreground mt-4 px-8 text-center text-sm">
-        By clicking login, you agree to our{" "}
-        <a
-          href="/terms"
-          className="hover:text-primary underline underline-offset-4"
-        >
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a
-          href="/privacy"
-          className="hover:text-primary underline underline-offset-4"
-        >
-          Privacy Policy
-        </a>
-        .
-      </p>
-    </Card>
-  )
+    </div>
+  );
 }
