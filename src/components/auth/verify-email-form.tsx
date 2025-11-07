@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useMutation } from "convex/react";
-import { api } from "../../convex/generated/api";
+import { api } from "@/convex/generated/api.js";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
@@ -16,6 +16,7 @@ export function VerifyEmailForm({ email: initialEmail }: { email?: string }) {
   const [isResending, setIsResending] = useState(false);
 
   const verifyEmail = useMutation(api.auth.verifyEmail);
+  const resendVerification = useMutation(api.auth.resendVerification);
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -37,7 +38,7 @@ export function VerifyEmailForm({ email: initialEmail }: { email?: string }) {
   const handleResend = async () => {
     setIsResending(true);
     try {
-      // Resend functionality will be implemented
+      await resendVerification({ email });
     } catch (err: any) {
       setError(err.message || "Failed to resend verification email");
     } finally {
