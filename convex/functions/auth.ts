@@ -1,5 +1,6 @@
 import { mutationGeneric, queryGeneric } from "convex/server";
 import { v } from "convex/values";
+import { sendVerificationEmail, sendPasswordResetEmail } from "./email";
 
 /**
  * Register a new user with email verification
@@ -37,8 +38,8 @@ export const register = mutationGeneric({
       emailVerificationSentAt: Date.now(),
     });
 
-    // TODO: Send verification email in production
-    console.log(`Verification code for ${email}: ${verificationCode}`);
+    // Send verification email
+    await sendVerificationEmail(ctx, { email, code: verificationCode, name });
 
     return { userId, message: "Registration successful. Please check your email to verify your account." };
   },
@@ -102,6 +103,45 @@ export const verifyEmail = mutationGeneric({
 });
 
 /**
+ * Resend verification email
+ */
+export const resendVerification = mutationGeneric({
+  args: {
+    email: v.string(),
+  },
+  handler: async (ctx, { email }) => {
+    const user = await ctx.db
+      .query("users")
+      .withIndex("by_email", (q) => q.eq("email", email))
+      .unique();
+
+    if (!user) {
+      return { message: "If an account with that email exists, we've sent a verification email." };
+    }
+
+    if (user.isEmailVerified) {
+      return { message: "Email is already verified" };
+    }
+
+    // Generate new verification code
+    const verificationCode = Math.floor(100000 + Math.random() * 900000).toString();
+    const expiresAt = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
+    // Update user with new code
+    await ctx.db.patch(user._id, {
+      emailVerificationCode: verificationCode,
+      emailVerificationExpires: expiresAt,
+      emailVerificationSentAt: Date.now(),
+    });
+
+    // Send verification email
+    await sendVerificationEmail(ctx, { email, code: verificationCode, name: user.name });
+
+    return { message: "If an account with that email exists, we've sent a verification email." };
+  },
+});
+
+/**
  * Request password reset
  */
 export const requestPasswordReset = mutationGeneric({
@@ -129,8 +169,8 @@ export const requestPasswordReset = mutationGeneric({
       passwordResetExpires: expiresAt,
     });
 
-    // TODO: Send reset email in production
-    console.log(`Password reset code for ${email}: ${resetCode}`);
+    // Send password reset email
+    await sendPasswordResetEmail(ctx, { email, code: resetCode, name: user.name });
 
     return { message: "If an account with that email exists, we've sent a password reset link." };
   },
