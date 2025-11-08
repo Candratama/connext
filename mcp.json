@@ -42,7 +42,7 @@
     "type": "http",
     "url": "https://mcp.context7.com/mcp",
     "headers": {
-      "CONTEXT7_API_KEY": "ctx7sk-a8c3e10c-0ec0-4de6-b9ae-aa73510e9ebc"
+      "CONTEXT7_API_KEY": "ctx7sk-xxxxxxx
     }
   }
 }
