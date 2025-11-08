@@ -65,24 +65,20 @@ export function LoginForm() {
     }
   };
 
-  const isOAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
-
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
-      {isOAuthEnabled && (
-        <GoogleLoginButton
-          onError={(error) => setError(error)}
-        />
-      )}
+      <GoogleLoginButton
+        onError={(error) => setError(error)}
+      />
 
-      {isOAuthEnabled && <div className="relative my-6">
+      <div className="relative my-6">
         <div className="absolute inset-0 flex items-center">
           <div className="w-full border-t border-gray-300" />
         </div>
         <div className="relative flex justify-center text-sm">
           <span className="px-2 bg-gray-50 text-gray-500">Or continue with email</span>
         </div>
-      </div>}
+      </div>
 
       <div className="space-y-4">
         <div>
