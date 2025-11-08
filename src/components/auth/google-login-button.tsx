@@ -56,7 +56,7 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
       window.google.accounts.id.renderButton(buttonContainer, {
         theme: "outline",
         size: "large",
-        width: "100%",
+        width: 300,
       });
 
       // Trigger the button click
