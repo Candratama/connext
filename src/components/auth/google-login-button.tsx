@@ -37,14 +37,33 @@ export function GoogleLoginButton({ onSuccess, onError }: GoogleLoginButtonProps
         await loadGoogleScript();
       }
 
-      // Initialize Google Identity Services
+      // Create a temporary div for the Google button
+      const buttonContainer = document.createElement("div");
+      buttonContainer.style.display = "none";
+      document.body.appendChild(buttonContainer);
+
+      // Initialize and render the Google button
       window.google.accounts.id.initialize({
         client_id: clientId!,
-        callback: handleCredentialResponse,
+        callback: (response: any) => {
+          handleCredentialResponse(response);
+          // Clean up
+          document.body.removeChild(buttonContainer);
+        },
       });
 
-      // Prompt the user to select an account
-      window.google.accounts.id.prompt();
+      // Render the Google Sign-In button
+      window.google.accounts.id.renderButton(buttonContainer, {
+        theme: "outline",
+        size: "large",
+        width: "100%",
+      });
+
+      // Trigger the button click
+      const button = buttonContainer.querySelector("div") as HTMLElement;
+      if (button) {
+        button.click();
+      }
     } catch (error) {
       console.error("Google login error:", error);
       const errorMessage = error instanceof Error ? error.message : "Login failed";
