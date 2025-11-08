@@ -2,11 +2,37 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/generated/api.js";
+import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+import { GoogleLoginButton } from "./google-login-button";
+
+// Layer 1: Entry Point Validation - Prevent buffer overflow and invalid input
+const registerSchema = z.object({
+  name: z
+    .string()
+    .min(1, "Name is required")
+    .max(100, "Name must be less than 100 characters")
+    .refine((name) => !name.includes('\x00'), "Invalid characters in name"),
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .max(254, "Email must be less than 254 characters")
+    .email("Invalid email address")
+    .refine((email) => !email.includes('\x00'), "Invalid characters in email"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    .max(128, "Password must be less than 128 characters")
+    .refine((password) => !password.includes('\x00'), "Invalid characters in password")
+    .refine(
+      (password) => /[A-Za-z]/.test(password) && /\d/.test(password),
+      "Password must contain at least one letter and one number"
+    ),
+});
 
 export function RegisterForm() {
   const [name, setName] = useState("");
@@ -16,7 +42,7 @@ export function RegisterForm() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const register = useMutation(api.auth.register);
+  const register = useAction(api["functions/auth"].register);
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -24,15 +50,32 @@ export function RegisterForm() {
     setError("");
     setIsLoading(true);
 
+    // Layer 1: Entry Point Validation - Validate input before submission
     try {
-      await register({ email, name, password });
+      const validatedData = registerSchema.parse({
+        name: name.trim(),
+        email: email.trim(),
+        password,
+      });
+
+      // If validation passes, proceed with registration
+      await register({
+        email: validatedData.email,
+        name: validatedData.name,
+        password: validatedData.password,
+      });
       setSuccess(true);
       // Redirect to verification page after 2 seconds
       setTimeout(() => {
-        router.push(`/verify-email?email=${encodeURIComponent(email)}`);
+        router.push(`/verify-email?email=${encodeURIComponent(validatedData.email)}`);
       }, 2000);
     } catch (err: any) {
-      setError(err.message || "Registration failed");
+      // Handle Zod validation errors
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError(err.message || "Registration failed");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -54,8 +97,25 @@ export function RegisterForm() {
     );
   }
 
+  const isOAuthEnabled = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+
   return (
     <form className="mt-8 space-y-6" onSubmit={handleSubmit}>
+      {isOAuthEnabled && (
+        <GoogleLoginButton
+          onError={(error) => setError(error)}
+        />
+      )}
+
+      {isOAuthEnabled && <div className="relative my-6">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-300" />
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-gray-50 text-gray-500">Or continue with email</span>
+        </div>
+      </div>}
+
       <div className="space-y-4">
         <div>
           <Label htmlFor="name">Full name</Label>
@@ -64,6 +124,7 @@ export function RegisterForm() {
             name="name"
             type="text"
             required
+            maxLength={100}
             value={name}
             onChange={(e) => setName(e.target.value)}
             className="mt-1"
@@ -77,6 +138,7 @@ export function RegisterForm() {
             type="email"
             autoComplete="email"
             required
+            maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1"
@@ -90,12 +152,13 @@ export function RegisterForm() {
             type="password"
             autoComplete="new-password"
             required
+            maxLength={128}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             className="mt-1"
           />
           <p className="mt-1 text-sm text-gray-500">
-            Must be at least 8 characters
+            Must be at least 8 characters, with letters and numbers
           </p>
         </div>
       </div>
