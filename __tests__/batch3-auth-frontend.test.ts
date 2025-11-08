@@ -171,7 +171,7 @@ describe("Batch 3: Authentication Frontend", () => {
         "register-form.tsx"
       );
       const content = fs.readFileSync(registerFormPath, "utf-8");
-      expect(content).toContain("api.auth.register");
+      expect(content).toContain('api["functions/auth"].register');
     });
 
     test("VerifyEmailForm should use verifyEmail mutation", () => {
@@ -182,7 +182,7 @@ describe("Batch 3: Authentication Frontend", () => {
         "verify-email-form.tsx"
       );
       const content = fs.readFileSync(verifyFormPath, "utf-8");
-      expect(content).toContain("api.auth.verifyEmail");
+      expect(content).toContain('api["functions/auth"].verifyEmail');
     });
 
     test("ForgotPasswordForm should use requestPasswordReset mutation", () => {
@@ -193,7 +193,7 @@ describe("Batch 3: Authentication Frontend", () => {
         "forgot-password-form.tsx"
       );
       const content = fs.readFileSync(forgotFormPath, "utf-8");
-      expect(content).toContain("api.auth.requestPasswordReset");
+      expect(content).toContain('api["functions/auth"].requestPasswordReset');
     });
 
     test("PasswordResetForm should use resetPassword mutation", () => {
@@ -204,7 +204,7 @@ describe("Batch 3: Authentication Frontend", () => {
         "password-reset-form.tsx"
       );
       const content = fs.readFileSync(resetFormPath, "utf-8");
-      expect(content).toContain("api.auth.resetPassword");
+      expect(content).toContain('api["functions/auth"].resetPassword');
     });
   });
 

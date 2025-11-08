@@ -2,34 +2,71 @@
 
 import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useMutation } from "convex/react";
+import { useMutation, useAction } from "convex/react";
 import { api } from "@/convex/generated/api.js";
+import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
 
+// Layer 1: Entry Point Validation - Prevent buffer overflow and invalid input
+const verifyEmailSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .max(254, "Email must be less than 254 characters")
+    .email("Invalid email address")
+    .refine((email) => !email.includes('\x00'), "Invalid characters in email"),
+  code: z
+    .string()
+    .min(1, "Verification code is required")
+    .max(6, "Invalid verification code")
+    .refine((code) => /^\d{6}$/.test(code), "Verification code must be 6 digits")
+    .refine((code) => !code.includes('\x00'), "Invalid characters in code"),
+});
+
 export function VerifyEmailForm({ email: initialEmail }: { email?: string }) {
-  const [code, setCode] = useState("");
-  const [email, setEmail] = useState(initialEmail || "");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+
+  // Read code and email from URL parameters
+  const codeFromUrl = searchParams.get("code") || "";
+  const emailFromUrl = searchParams.get("email") || initialEmail || "";
+
+  const [code, setCode] = useState(codeFromUrl);
+  const [email, setEmail] = useState(emailFromUrl);
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
 
-  const verifyEmail = useMutation(api.auth.verifyEmail);
-  const resendVerification = useMutation(api.auth.resendVerification);
-  const router = useRouter();
-  const searchParams = useSearchParams();
+  const verifyEmail = useMutation(api["functions/auth"].verifyEmail);
+  const resendVerification = useAction(api["functions/auth"].resendVerification);
 
   const handleVerify = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
+    // Layer 1: Entry Point Validation - Validate input before submission
     try {
-      await verifyEmail({ email, code });
+      const validatedData = verifyEmailSchema.parse({
+        email: email.trim(),
+        code: code.trim(),
+      });
+
+      // If validation passes, proceed with verification
+      await verifyEmail({
+        email: validatedData.email,
+        code: validatedData.code,
+      });
       router.push("/login?verified=true");
     } catch (err: any) {
-      setError(err.message || "Verification failed");
+      // Handle Zod validation errors
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError(err.message || "Verification failed");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -56,6 +93,7 @@ export function VerifyEmailForm({ email: initialEmail }: { email?: string }) {
             name="email"
             type="email"
             required
+            maxLength={254}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             className="mt-1"

@@ -1,10 +1,13 @@
 import { PasswordResetForm } from "../../../components/auth/password-reset-form";
+import { use } from "react";
 
 export default function VerifyResetPage({
   searchParams,
 }: {
-  searchParams: { email?: string; code?: string };
+  searchParams: Promise<{ email?: string; code?: string }>;
 }) {
+  const params = use(searchParams);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -16,7 +19,7 @@ export default function VerifyResetPage({
             Enter your new password below
           </p>
         </div>
-        <PasswordResetForm email={searchParams.email} code={searchParams.code} />
+        <PasswordResetForm email={params.email} code={params.code} />
       </div>
     </div>
   );

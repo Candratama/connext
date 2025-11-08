@@ -1,11 +1,22 @@
 "use client";
 
 import { useState } from "react";
-import { useMutation } from "convex/react";
+import { useAction } from "convex/react";
 import { api } from "@/convex/generated/api.js";
+import { z } from "zod";
 import { Button } from "../../components/ui/button";
 import { Input } from "../../components/ui/input";
 import { Label } from "../../components/ui/label";
+
+// Layer 1: Entry Point Validation - Prevent buffer overflow and invalid input
+const forgotPasswordSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .max(254, "Email must be less than 254 characters")
+    .email("Invalid email address")
+    .refine((email) => !email.includes('\x00'), "Invalid characters in email"),
+});
 
 export function ForgotPasswordForm() {
   const [email, setEmail] = useState("");
@@ -13,18 +24,29 @@ export function ForgotPasswordForm() {
   const [success, setSuccess] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const requestPasswordReset = useMutation(api.auth.requestPasswordReset);
+  const requestPasswordReset = useAction(api["functions/auth"].requestPasswordReset);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
     setIsLoading(true);
 
+    // Layer 1: Entry Point Validation - Validate input before submission
     try {
-      await requestPasswordReset({ email });
+      const validatedData = forgotPasswordSchema.parse({
+        email: email.trim(),
+      });
+
+      // If validation passes, proceed with request
+      await requestPasswordReset({ email: validatedData.email });
       setSuccess(true);
     } catch (err: any) {
-      setError(err.message || "Failed to send reset email");
+      // Handle Zod validation errors
+      if (err instanceof z.ZodError) {
+        setError(err.errors[0].message);
+      } else {
+        setError(err.message || "Failed to send reset email");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -62,6 +84,7 @@ export function ForgotPasswordForm() {
           type="email"
           autoComplete="email"
           required
+          maxLength={254}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           className="mt-1"

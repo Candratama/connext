@@ -1,0 +1,48 @@
+{
+  "mcpServers": {
+    "chrome-devtool": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "chrome-devtools-mcp@latest"
+      ],
+      "env": {}
+    },
+    "sequential-thinking": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "shadcn": {
+      "command": "npx",
+      "args": [
+        "shadcn@latest",
+        "mcp"
+      ]
+    },
+    "exa": {
+      "type": "http",
+      "url": "https://mcp.exa.ai/mcp",
+      "headers": {}
+    }
+  },
+  "convex": {
+    "type": "stdio",
+    "command": "npx",
+    "args": [
+      "-y",
+      "convex@latest",
+      "mcp",
+      "start"
+    ]
+  },
+  "context7": {
+    "type": "http",
+    "url": "https://mcp.context7.com/mcp",
+    "headers": {
+      "CONTEXT7_API_KEY": "ctx7sk-a8c3e10c-0ec0-4de6-b9ae-aa73510e9ebc"
+    }
+  }
+}

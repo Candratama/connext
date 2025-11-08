@@ -1,18 +1,36 @@
-import { mutation, query } from "convex/server";
-import { v } from "convex/values";
 import { Resend } from "resend";
 
 /**
  * Send email verification using Resend
+ * Internal helper function called from mutations
  */
-export const sendVerificationEmail = mutation(
-  async (ctx, { email, code, name }: { email: string; code: string; name: string }) => {
-    const resend = new Resend(process.env.RESEND_API_KEY!);
+export async function sendVerificationEmail({
+  email,
+  code,
+  name,
+  apiKey,
+  fromEmail,
+  appUrl,
+}: {
+  email: string;
+  code: string;
+  name: string;
+  apiKey: string;
+  fromEmail: string;
+  appUrl: string;
+}) {
+  try {
+    console.log("[EMAIL] Starting verification email send to:", email);
+    console.log("[EMAIL] Using API key:", apiKey ? `${apiKey.substring(0, 8)}...` : "MISSING");
+    console.log("[EMAIL] From email:", fromEmail);
+    console.log("[EMAIL] App URL:", appUrl);
 
-    const verificationUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-email?code=${code}&email=${email}`;
+    const resend = new Resend(apiKey);
+    const verificationUrl = `${appUrl}/verify-email?code=${code}&email=${email}`;
 
+    console.log("[EMAIL] Calling Resend API...");
     const result = await resend.emails.send({
-      from: "noreply@yourapp.com",
+      from: fromEmail,
       to: [email],
       subject: "Verify your email address",
       html: `
@@ -24,30 +42,57 @@ export const sendVerificationEmail = mutation(
                     text-decoration: none; border-radius: 4px; margin: 16px 0;">
             Verify Email
           </a>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="color: #666;">${verificationUrl}</p>
+          <p>Or enter this verification code:</p>
+          <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; text-align: center; margin: 16px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">${code}</span>
+          </div>
           <p style="color: #666; font-size: 12px;">
-            This link will expire in 24 hours. If you didn't create an account, please ignore this email.
+            This code will expire in 24 hours. If you didn't create an account, please ignore this email.
           </p>
         </div>
       `,
     });
 
+    console.log("[EMAIL] Resend API response:", JSON.stringify(result));
     return result;
+  } catch (error) {
+    console.error("[EMAIL] Error sending verification email:", error);
+    console.error("[EMAIL] Error details:", JSON.stringify(error, null, 2));
+    throw error;
   }
-);
+}
 
 /**
  * Send password reset email
+ * Internal helper function called from mutations
  */
-export const sendPasswordResetEmail = mutation(
-  async (ctx, { email, code, name }: { email: string; code: string; name: string }) => {
-    const resend = new Resend(process.env.RESEND_API_KEY!);
+export async function sendPasswordResetEmail({
+  email,
+  code,
+  name,
+  apiKey,
+  fromEmail,
+  appUrl,
+}: {
+  email: string;
+  code: string;
+  name: string;
+  apiKey: string;
+  fromEmail: string;
+  appUrl: string;
+}) {
+  try {
+    console.log("[EMAIL] Starting password reset email send to:", email);
+    console.log("[EMAIL] Using API key:", apiKey ? `${apiKey.substring(0, 8)}...` : "MISSING");
+    console.log("[EMAIL] From email:", fromEmail);
+    console.log("[EMAIL] App URL:", appUrl);
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_APP_URL}/verify-reset?code=${code}&email=${email}`;
+    const resend = new Resend(apiKey);
+    const resetUrl = `${appUrl}/verify-reset?code=${code}&email=${email}`;
 
+    console.log("[EMAIL] Calling Resend API...");
     const result = await resend.emails.send({
-      from: "noreply@yourapp.com",
+      from: fromEmail,
       to: [email],
       subject: "Reset your password",
       html: `
@@ -60,15 +105,22 @@ export const sendPasswordResetEmail = mutation(
                     text-decoration: none; border-radius: 4px; margin: 16px 0;">
             Reset Password
           </a>
-          <p>Or copy and paste this link into your browser:</p>
-          <p style="color: #666;">${resetUrl}</p>
+          <p>Or enter this reset code:</p>
+          <div style="background: #f5f5f5; padding: 16px; border-radius: 8px; text-align: center; margin: 16px 0;">
+            <span style="font-size: 32px; font-weight: bold; letter-spacing: 8px; color: #333;">${code}</span>
+          </div>
           <p style="color: #666; font-size: 12px;">
-            This link will expire in 1 hour. If you didn't request a password reset, please ignore this email.
+            This code will expire in 1 hour. If you didn't request a password reset, please ignore this email.
           </p>
         </div>
       `,
     });
 
+    console.log("[EMAIL] Resend API response:", JSON.stringify(result));
     return result;
+  } catch (error) {
+    console.error("[EMAIL] Error sending password reset email:", error);
+    console.error("[EMAIL] Error details:", JSON.stringify(error, null, 2));
+    throw error;
   }
-);
+}

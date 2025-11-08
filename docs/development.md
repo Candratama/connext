@@ -15,14 +15,27 @@ This will:
 - Create your Convex backend
 - Provide you with a deployment URL
 - Update your .env.local with credentials
+- Generate client code in `src/convex/generated/`
 
 ### 3. Update Environment Variables
-After running `convex dev`, add the provided URL to `.env.local`:
+After running `convex dev`, the `.env.local` file will be automatically updated with:
+- `CONVEX_DEPLOYMENT`
+- `CONVEX_DEVELOPMENT_KEY`
+- `NEXT_PUBLIC_CONVEX_URL`
+
+### 4. Generate Client Code
+After setting up Convex, regenerate the client API types:
 ```bash
-NEXT_PUBLIC_CONVEX_URL=https://your-url.convex.cloud
+npx convex codegen
 ```
 
-### 4. Start Development
+This creates TypeScript types for all your Convex functions in:
+- `src/convex/generated/api.ts` - Client-side API
+- `src/convex/generated/server.d.ts` - Server-side types
+
+**Note:** If you see import errors, make sure the generated API file exists and matches your function structure.
+
+### 5. Start Development
 ```bash
 pnpm dev
 ```

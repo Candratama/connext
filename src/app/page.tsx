@@ -190,7 +190,7 @@ pnpm dev
               <h3 className="text-lg font-semibold">Authentication</h3>
               <p className="mt-2 text-sm text-gray-600 dark:text-gray-400">
                 Secure email/password auth with email verification, password reset,
-                and Google OAuth integration. Session management included.
+                and session management included.
               </p>
             </div>
             <div className="rounded-lg border p-6">

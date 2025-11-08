@@ -7,8 +7,11 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "i.pravatar.cc",
       },
+      {
+        protocol: "https",
+        hostname: "ui.shadcn.com",
+      },
     ],
-    domains: ["ui.shadcn.com"],
   },
 };
 

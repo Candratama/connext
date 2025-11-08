@@ -1,6 +1,8 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { useAction } from "convex/react";
+import { api } from "@/convex/generated/api.js";
 
 interface User {
   _id: string;
@@ -24,24 +26,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Get current user (implement in Batch 4)
-  // For now, we'll check localStorage or skip this check
+  const loginAction = useAction(api["functions/auth"].login);
+
+  // Get current user from sessionStorage on mount
   useEffect(() => {
-    // TODO: Implement getCurrentUser query in Batch 4
-    // const getCurrentUser = useQuery(api.users.getCurrentUser);
-    // if (getCurrentUser !== undefined) {
-    //   setUser(getCurrentUser);
-    //   setIsLoading(false);
-    // }
+    const storedUser = sessionStorage.getItem("user");
+    if (storedUser) {
+      try {
+        setUser(JSON.parse(storedUser));
+      } catch (e) {
+        console.error("Failed to parse stored user:", e);
+        sessionStorage.removeItem("user");
+      }
+    }
     setIsLoading(false);
   }, []);
 
   const login = async (email: string, password: string) => {
-    // Implement in Batch 4
-    setUser(null);
+    const result = await loginAction({ email, password });
+
+    if (!result.success) {
+      // Throw error with the specific error code so login form can handle it
+      const error = new Error(result.message);
+      error.name = result.error;
+      throw error;
+    }
+
+    // Store user in sessionStorage
+    sessionStorage.setItem("user", JSON.stringify(result.user));
+    setUser(result.user);
   };
 
   const logout = () => {
+    // Remove user from sessionStorage
+    sessionStorage.removeItem("user");
     setUser(null);
   };
 

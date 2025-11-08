@@ -1,8 +1,10 @@
 "use client"
 
 import * as React from "react"
-import { ChevronsUpDown, Plus } from "lucide-react"
+import { ChevronsUpDown, Plus, LogOut } from "lucide-react"
+import { useRouter } from "next/navigation"
 import { cn } from "@/lib/utils"
+import { useAuth } from "@/contexts/auth-context"
 // import Image from "next/image"
 import {
   DropdownMenu,
@@ -31,6 +33,13 @@ interface Props {
 export function TeamSwitcher({ teams }: Props) {
   const { isMobile } = useSidebar()
   const [activeTeam, setActiveTeam] = React.useState(teams[0])
+  const { logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout()
+    router.push("/login")
+  }
 
   return (
     <SidebarMenu>
@@ -86,6 +95,16 @@ export function TeamSwitcher({ teams }: Props) {
                 <Plus className="size-4" />
               </div>
               <div className="text-muted-foreground font-medium">Add team</div>
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              onClick={handleLogout}
+              className="gap-2 p-2 text-red-600 dark:text-red-400 focus:text-red-600 dark:focus:text-red-400"
+            >
+              <div className="bg-background flex size-6 items-center justify-center rounded-md border border-red-200 dark:border-red-800">
+                <LogOut className="size-4" />
+              </div>
+              <div className="font-medium">Log out</div>
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>

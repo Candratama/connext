@@ -10,8 +10,10 @@
 
 import type * as functions_auth from "../functions/auth.js";
 import type * as functions_email from "../functions/email.js";
+import type * as functions_index from "../functions/index.js";
 import type * as functions_seed_demo from "../functions/seed/demo.js";
 import type * as functions_seed_minimal from "../functions/seed/minimal.js";
+import type * as functions_testEmail from "../functions/testEmail.js";
 import type * as functions_users from "../functions/users.js";
 import type * as seed from "../seed.js";
 
@@ -32,8 +34,10 @@ import type {
 declare const fullApi: ApiFromModules<{
   "functions/auth": typeof functions_auth;
   "functions/email": typeof functions_email;
+  "functions/index": typeof functions_index;
   "functions/seed/demo": typeof functions_seed_demo;
   "functions/seed/minimal": typeof functions_seed_minimal;
+  "functions/testEmail": typeof functions_testEmail;
   "functions/users": typeof functions_users;
   seed: typeof seed;
 }>;

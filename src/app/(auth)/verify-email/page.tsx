@@ -1,10 +1,13 @@
 import { VerifyEmailForm } from "../../../components/auth/verify-email-form";
+import { use } from "react";
 
 export default function VerifyEmailPage({
   searchParams,
 }: {
-  searchParams: { email?: string };
+  searchParams: Promise<{ email?: string }>;
 }) {
+  const params = use(searchParams);
+
   return (
     <div className="min-h-screen flex items-center justify-center bg-gray-50 py-12 px-4 sm:px-6 lg:px-8">
       <div className="max-w-md w-full space-y-8">
@@ -16,7 +19,7 @@ export default function VerifyEmailPage({
             We've sent a verification code to your email
           </p>
         </div>
-        <VerifyEmailForm email={searchParams.email} />
+        <VerifyEmailForm email={params.email} />
       </div>
     </div>
   );

@@ -17,8 +17,8 @@ describe("Batch 2: Authentication Backend", () => {
 
   test("email.ts functions exist", () => {
     const emailContent = fs.readFileSync("convex/functions/email.ts", "utf8");
-    expect(emailContent).toContain("export const sendVerificationEmail");
-    expect(emailContent).toContain("export const sendPasswordResetEmail");
+    expect(emailContent).toContain("export async function sendVerificationEmail");
+    expect(emailContent).toContain("export async function sendPasswordResetEmail");
   });
 
   test("minimal seed exists", () => {
